@@ -1,6 +1,11 @@
-## Création d'une application d'identification de genres musicaux
+## API pour l'app Classification de genre musicaux
 
-### Objectifs
-    - Entrainer un modèle pour reconnaitre le genre musical d'une musique 
-    - Mettre en place un backend pour l'utilisation du modèle
-    - Mettre en place un frontend pour qu'un utilisateur puisse faire des prédicions 
+### Technologie
+ - hug
+ - Keras
+ - Siscikt learn
+ - Tensorflow
+
+### Dev setup
+ - Créer un environement virtuel venv: python -m venv .venv
+ - Pip install sur le requirements.txt: pip install -r requirements.txt 
