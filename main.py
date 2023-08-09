@@ -6,9 +6,10 @@ import librosa.display  # Pour récupérer les spectrogrammes des audio
 import librosa.feature
 import numpy as np
 
-model = keras.models.load_model("./neuralNetwork.hdf5")
+model = keras.models.load_model("./modelF.hdf5")
 import joblib
-scaler = joblib.load("scaler.pkl")
+
+scaler = joblib.load("scaler1.pkl")
 
 genres = [
     "blues",
@@ -29,18 +30,39 @@ def audio_pipeline(audio):
 
     # Calcul du ZCR
 
-    zcr = librosa.zero_crossings(audio)
-    features.append(sum(zcr))
+    chroma_stft = librosa.feature.chroma_stft(y=audio)
+    features.append(np.mean(chroma_stft))
+    features.append(np.var(chroma_stft))
+
+    rms = librosa.feature.rms(y=audio)
+    features.append(np.mean(rms))
+    features.append(np.var(rms))
 
     # Calcul de la moyenne du Spectral centroid
 
-    spectral_centroids = librosa.feature.spectral_centroid(y=audio)[0]
+    # spectral_centroids = librosa.feature.spectral_centroid(y=audio)[0]
+    spectral_centroids = librosa.feature.spectral_centroid(y=audio)
     features.append(np.mean(spectral_centroids))
+    features.append(np.var(spectral_centroids))
 
-    # Calcul du spectral rolloff point
+    spectral_bandwidth = librosa.feature.spectral_bandwidth(y=audio)
+    features.append(np.mean(spectral_bandwidth))
+    features.append(np.var(spectral_bandwidth))
 
     rolloff = librosa.feature.spectral_rolloff(y=audio)
     features.append(np.mean(rolloff))
+    features.append(np.var(rolloff))
+
+    zcr = librosa.feature.zero_crossing_rate(y=audio)
+    features.append(np.mean(zcr))
+    features.append(np.var(zcr))
+
+    harmony = librosa.effects.harmonic(y=audio)
+    features.append(np.mean(harmony))
+    features.append(np.var(harmony))
+
+    tempo = librosa.feature.tempo(y=audio)
+    features.append(tempo[0])
 
     # Calcul des moyennes des MFCC
 
@@ -48,12 +70,14 @@ def audio_pipeline(audio):
 
     for x in mfcc:
         features.append(np.mean(x))
+        features.append(np.var(x))
 
     return features
 
 
 # Load and preprocess the audio file
 def preprocess_audio(file_path):
+    # -------------------------------
     audio, _ = librosa.load(file_path, sr=None)
 
     # Apply the same feature extraction and scaling as you did during training
