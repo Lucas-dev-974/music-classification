@@ -5,9 +5,9 @@ import librosa  # Pour l'extraction des features et la lecture des fichiers wav
 import librosa.display  # Pour récupérer les spectrogrammes des audio
 import librosa.feature
 import numpy as np
-import joblib
 
 model = keras.models.load_model("./neuralNetwork.hdf5")
+import joblib
 scaler = joblib.load("scaler.pkl")
 
 genres = [
