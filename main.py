@@ -5,11 +5,11 @@ import librosa  # Pour l'extraction des features et la lecture des fichiers wav
 import librosa.display  # Pour récupérer les spectrogrammes des audio
 import librosa.feature
 import numpy as np
-
-model = keras.models.load_model("./modelF.hdf5")
 import joblib
 
-scaler = joblib.load("scaler1.pkl")
+model = keras.models.load_model("./models/modelF.hdf5")
+
+scaler = joblib.load("./models/scalerModelF.pkl")
 
 genres = [
     "blues",
@@ -88,23 +88,27 @@ def preprocess_audio(file_path):
 
 
 # Make predictions on the preprocessed audio
-def predict_top_genres(file_path, top_n=3):
+def predict(file_path, top_n=3):
+    # Preprocess audio file
     scaled_features = preprocess_audio(file_path)
+
+    # Make prediction
     predicted_probabilities = model.predict(scaled_features)
-    top_n_indices = np.argsort(predicted_probabilities[0])[::-1][:top_n]
-    top_n_genres = [genres[idx] for idx in top_n_indices]
+
+    print("brut prediction: ", predicted_probabilities)
+
+    # Get top_n highest
+    top_n_index = np.argsort(predicted_probabilities[0])
+    print("top_n_indexe: ", top_n_index)
+
+    # For
+    top_n_genres = [genres[idx] for idx in top_n_index]
+    print("top n genres:", top_n_genres)
+
     prediction_percentages = [
-        predicted_probabilities[0][idx] * 100 for idx in top_n_indices
+        predicted_probabilities[0][idx] * 100 for idx in top_n_index
     ]
     return top_n_genres, prediction_percentages
-
-
-# Provide the path to the audio file you want to classify
-audio_file_path = "./dataset/to_check/sound/hiphop/hiphop.00000.wav"
-top_genres, prediction_percentages = predict_top_genres(audio_file_path)
-
-for i, genre in enumerate(top_genres):
-    print(i + 1, genre, "{:.2f}%".format(prediction_percentages[i]))
 
 
 def save_uploaded_file(uploaded_file):
@@ -125,17 +129,23 @@ def save_uploaded_file(uploaded_file):
     return save_directory + "/toAnalyse.wav"
 
 
+# Main streamlit app
 def main():
+    # Show information like title, audio input uploader, audio control with
+    # st.<component>
     st.title("Audio File Uploader")
-
     audio_file = st.file_uploader("Upload an audio file", type=["mp3", "wav", "ogg"])
 
     if audio_file is not None:
+        # Save file in uploads folder
         path = save_uploaded_file(audio_file)
         st.audio(audio_file, format="audio/mp3")
-        top_genres, prediction_percentages = predict_top_genres(path)
 
-        for i, genre in enumerate(top_genres):
+        # Make prediction, get genres 3 first genres recognised
+        genres, prediction_percentages = predict(path)
+
+        # For each genres show text with its percet %
+        for i, genre in enumerate(genres):
             st.text(f"{genre} : " + "{:.2f}%".format(prediction_percentages[i]))
             print(i + 1, genre, "{:.2f}%".format(prediction_percentages[i]))
 
