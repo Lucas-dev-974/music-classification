@@ -3,3 +3,7 @@
 dataset
 uploads
 *.zip
+*.h5
+v2/F/MSD2.csv
+v2/F/songs2.csv
+v2/F/Data/*
