@@ -1,0 +1,2 @@
+model_checkpoint_path: "stable_model"
+all_model_checkpoint_paths: "stable_model"
